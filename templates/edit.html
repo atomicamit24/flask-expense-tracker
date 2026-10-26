@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Expense &bull; {{ expense.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto">
+    <!-- Card Container -->
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-card p-6 sm:p-8">
+        <!-- Card Header with Back Link -->
+        <div class="flex items-center justify-between pb-6 mb-6 border-b border-slate-100">
+            <div class="flex items-center gap-3">
+                <a href="{{ url_for('index') }}" class="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors" title="Back to Dashboard">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </a>
+                <div>
+                    <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">Edit Expense</h1>
+                    <p class="text-xs text-slate-400 font-medium">Update transaction #{{ expense.id }} details</p>
+                </div>
+            </div>
+
+            <span class="text-xs font-bold text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-200/60">Editing</span>
+        </div>
+
+        <!-- Form Body -->
+        <form action="{{ url_for('edit_expense', expense_id=expense.id) }}" method="POST" class="space-y-5">
+            <input type="hidden" name="id" value="{{ expense.id }}">
+
+            <!-- Expense Title -->
+            <div>
+                <label for="title" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                    Title <span class="text-rose-500">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="title" 
+                    name="title" 
+                    value="{{ expense.title }}" 
+                    required 
+                    maxlength="120"
+                    autofocus
+                    class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200/80 text-sm font-semibold text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all"
+                >
+            </div>
+
+            <!-- Amount -->
+            <div>
+                <label for="amount" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                    Amount ($) <span class="text-rose-500">*</span>
+                </label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 font-extrabold text-sm">$</span>
+                    <input 
+                        type="number" 
+                        id="amount" 
+                        name="amount" 
+                        value="{{ '%.2f'|format(expense.amount) }}" 
+                        step="0.01" 
+                        min="0.01" 
+                        required
+                        class="w-full pl-8 pr-4 py-3 rounded-2xl bg-slate-50 border border-slate-200/80 text-sm font-bold text-slate-900 focus:bg-white focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all"
+                    >
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div>
+                <label for="description" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                    Description <span class="text-slate-400 font-normal lowercase">(optional)</span>
+                </label>
+                <textarea 
+                    id="description" 
+                    name="description" 
+                    rows="3" 
+                    placeholder="Add extra notes or details..."
+                    class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200/80 text-sm text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all resize-y"
+                >{{ expense.description or '' }}</textarea>
+            </div>
+
+            <!-- Metadata Details Grid (Matches Design Cards) -->
+            <div class="bg-slate-50/80 rounded-2xl p-4 border border-slate-200/60 grid grid-cols-2 gap-3 text-xs">
+                <div>
+                    <span class="text-slate-400 font-medium block">Category</span>
+                    <span class="font-bold text-slate-800 mt-0.5 inline-block">
+                        {% if expense.category == 'Food' %}🍔 Food
+                        {% elif expense.category == 'Travel' %}✈️ Travel
+                        {% elif expense.category == 'Utilities' %}💡 Utilities
+                        {% else %}📦 Others{% endif %}
+                    </span>
+                </div>
+                <div>
+                    <span class="text-slate-400 font-medium block">Date Spent On</span>
+                    <span class="font-bold text-slate-800 mt-0.5 inline-block">
+                        {{ expense.spent_on.strftime('%b %d, %Y') if expense.spent_on else '-' }}
+                    </span>
+                </div>
+                <div>
+                    <span class="text-slate-400 font-medium block">Created</span>
+                    <span class="text-slate-600 mt-0.5 inline-block">
+                        {{ expense.created_at.strftime('%Y-%m-%d %H:%M') if expense.created_at else '-' }}
+                    </span>
+                </div>
+                <div>
+                    <span class="text-slate-400 font-medium block">Last Modified</span>
+                    <span class="text-slate-600 mt-0.5 inline-block">
+                        {{ expense.updated_at.strftime('%Y-%m-%d %H:%M') if expense.updated_at else '-' }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center gap-3 pt-3">
+                <button type="submit" class="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold text-sm py-3.5 px-6 rounded-2xl shadow-purple-glow active:scale-[0.98] transition-all cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span>Save Changes</span>
+                </button>
+                <a href="{{ url_for('index') }}" class="inline-flex items-center justify-center py-3.5 px-6 rounded-2xl text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 hover:text-slate-900 transition-colors">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
