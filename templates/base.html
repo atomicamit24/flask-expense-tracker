@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Expense Tracker{% endblock %}</title>
     
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -32,7 +31,7 @@
                         }
                     },
                     fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'Inter', system-ui, 'sans-serif'],
+                        sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
                     },
                     boxShadow: {
                         'soft': '0 8px 30px rgba(0, 0, 0, 0.04)',
@@ -50,73 +49,42 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    
-    <style>
-        body {
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #F6F8FC;
-        }
-    </style>
 </head>
-<body class="flex flex-col min-h-full text-slate-800 antialiased pb-24 sm:pb-12 selection:bg-purple-100 selection:text-purple-900">
+<body class="flex min-h-full flex-col bg-[#F6F8FC] font-sans text-slate-800 antialiased selection:bg-purple-100 selection:text-purple-900">
 
     <!-- Desktop & Mobile Top Header -->
-    <header class="sticky top-0 z-30 bg-[#F6F8FC]/90 backdrop-blur-md border-b border-slate-200/60 transition-all">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6">
-            <div class="flex items-center justify-between h-16">
-                <!-- User Profile & Brand -->
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-300 via-orange-300 to-amber-200 p-0.5 shadow-sm flex items-center justify-center shrink-0">
-                        <span class="text-xl">🧑‍💻</span>
-                    </div>
-                    <div>
-                        <a href="{{ url_for('index') }}" class="flex items-center gap-1.5 font-bold text-slate-900 tracking-tight text-base sm:text-lg">
-                            <span>Expense</span><span class="text-purple-600 font-extrabold">Tracker</span>
-                        </a>
-                        <div class="flex items-center gap-1 text-[11px] font-semibold text-slate-400">
-                            <span>October 2026</span>
-                            <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
+    <header class="sticky top-0 z-30 border-b border-slate-200/70 bg-white/95 shadow-sm backdrop-blur">
+        <div class="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
+            <a href="{{ url_for('index') }}" class="flex shrink-0 items-center gap-3" aria-label="Expense Tracker home">
+                <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100 text-xl" aria-hidden="true">💸</span>
+                <span class="text-lg font-extrabold tracking-tight text-slate-900">
+                    Expense <span class="text-purple-700">Tracker</span>
+                </span>
+            </a>
 
-                <!-- Right Actions: Month Dropdown & Notifications -->
-                <div class="flex items-center gap-2.5">
-                    <a href="{{ url_for('index') }}" class="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-purple-700 bg-white border border-slate-200/80 px-3.5 py-2 rounded-xl shadow-card transition-all">
-                        <span>Dashboard</span>
-                    </a>
-                    
-                    <a href="{{ url_for('add_expense') }}" class="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 px-4 py-2 rounded-xl shadow-purple-glow active:scale-95 transition-all">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
-                        </svg>
-                        <span>Add Expense</span>
-                    </a>
-
-                    <!-- Notification Bell -->
-                    <div class="relative w-10 h-10 rounded-full bg-white border border-slate-200/80 flex items-center justify-center text-slate-600 shadow-card">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                        </svg>
-                        <!-- Red Notification Dot -->
-                        <span class="absolute top-2 right-2.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white"></span>
-                    </div>
-                </div>
-            </div>
+            <nav aria-label="Main navigation" class="flex w-full flex-nowrap items-center justify-between gap-0.5 overflow-x-auto text-[11px] font-semibold sm:justify-start sm:gap-1 sm:text-sm lg:w-auto lg:overflow-visible">
+                <a href="{{ url_for('index') }}" class="shrink-0 whitespace-nowrap rounded-lg px-1.5 py-2 text-slate-600 hover:bg-slate-100 hover:text-purple-700 sm:px-3">Dashboard</a>
+                <a href="{{ url_for('index') }}#reports" class="shrink-0 whitespace-nowrap rounded-lg px-1.5 py-2 text-slate-600 hover:bg-slate-100 hover:text-purple-700 sm:px-3">Reports</a>
+                <a href="{{ url_for('index') }}#transactions" class="shrink-0 whitespace-nowrap rounded-lg px-1.5 py-2 text-slate-600 hover:bg-slate-100 hover:text-purple-700 sm:px-3">Transactions</a>
+                <a href="{{ url_for('add_expense') }}" aria-label="Add expense" title="Add expense" class="ml-0 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-purple-700 text-white shadow-sm hover:bg-purple-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-700 sm:ml-1 sm:h-auto sm:w-auto sm:gap-2 sm:px-3.5 sm:py-2">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    <span class="hidden sm:inline">Add expense</span>
+                </a>
+            </nav>
         </div>
     </header>
 
     <!-- Main Content Container -->
-    <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-6">
+    <main class="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
         
         <!-- Flash Notifications in Pill Style -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                <div class="space-y-3 mb-6">
+                <div class="mb-6 space-y-3" aria-live="polite">
                     {% for category, message in messages %}
-                        <div class="flex items-center justify-between px-4 py-3 rounded-2xl border text-sm font-semibold shadow-card animate-fadeIn
+                        <div role="{% if category == 'danger' %}alert{% else %}status{% endif %}" class="flex items-center justify-between gap-4 rounded-xl border px-4 py-3 text-sm font-semibold shadow-sm animate-fadeIn
                             {% if category == 'success' %}
                                 bg-emerald-50 text-emerald-800 border-emerald-200/80
                             {% elif category == 'danger' %}
@@ -124,18 +92,9 @@
                             {% else %}
                                 bg-purple-50 text-purple-900 border-purple-200/80
                             {% endif %}">
-                            <div class="flex items-center gap-2.5">
-                                {% if category == 'success' %}
-                                    <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs">✓</span>
-                                {% elif category == 'danger' %}
-                                    <span class="w-6 h-6 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-xs">!</span>
-                                {% else %}
-                                    <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xs">ℹ</span>
-                                {% endif %}
-                                <span>{{ message }}</span>
-                            </div>
-                            <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <span>{{ message }}</span>
+                            <button type="button" onclick="this.parentElement.remove()" aria-label="Dismiss notification" class="shrink-0 rounded-md p-1 text-current opacity-60 hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                 </svg>
                             </button>
@@ -149,57 +108,10 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Mobile Floating Bottom Navigation Bar (Matches Screenshot) -->
-    <nav class="sm:hidden fixed bottom-4 inset-x-4 z-40">
-        <div class="bg-white/95 backdrop-blur-lg border border-slate-200/80 rounded-3xl shadow-xl px-6 py-2.5 flex items-center justify-between">
-            <!-- Home / Dashboard -->
-            <a href="{{ url_for('index') }}" class="flex flex-col items-center gap-1 text-purple-600">
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
-                </svg>
-                <span class="text-[10px] font-bold">Home</span>
-            </a>
-
-            <!-- Report Tab -->
-            <a href="{{ url_for('index') }}#reports" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                </svg>
-                <span class="text-[10px] font-medium">Report</span>
-            </a>
-
-            <!-- Center Floating Glowing Violet Add Button -->
-            <div class="-mt-8">
-                <a href="{{ url_for('add_expense') }}" class="w-13 h-13 w-12 h-12 rounded-full bg-gradient-to-tr from-purple-600 via-indigo-600 to-purple-400 text-white flex items-center justify-center shadow-purple-glow hover:scale-105 active:scale-95 transition-all ring-4 ring-[#F6F8FC]">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                </a>
-            </div>
-
-            <!-- Transactions / Plan Tab -->
-            <a href="{{ url_for('index') }}#transactions" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                </svg>
-                <span class="text-[10px] font-medium">History</span>
-            </a>
-
-            <!-- Settings / Info -->
-            <a href="{{ url_for('index') }}" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                </svg>
-                <span class="text-[10px] font-medium">Settings</span>
-            </a>
-        </div>
-    </nav>
-
-    <!-- Desktop Footer -->
-    <footer class="hidden sm:block mt-auto border-t border-slate-200/60 py-6 text-center text-xs text-slate-400">
-        <p>Personal Finance &bull; Flask &amp; SQLAlchemy &bull; Elegant Modern Interface</p>
+    <footer class="mt-8 border-t border-slate-200/70 py-5 text-center text-xs text-slate-500">
+        <p>Expense Tracker <span aria-hidden="true">&bull;</span> Personal finance, made simple</p>
     </footer>
 
+    {% block scripts %}{% endblock %}
 </body>
 </html>

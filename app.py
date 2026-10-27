@@ -1,4 +1,5 @@
 import os
+import calendar
 from datetime import date, datetime, timezone
 from flask import Flask, flash, redirect, render_template, request, url_for
 from database import db, init_db
@@ -31,12 +32,22 @@ def create_app(test_config=None) -> Flask:
         expenses = Expense.query.order_by(
             Expense.spent_on.desc(), Expense.created_at.desc()
         ).all()
+        today = date.today()
+        report_year = today.year
         total_amount = sum(e.amount for e in expenses)
 
         # Calculate category spending breakdown for reports
         category_totals = {cat: 0.0 for cat in CATEGORIES}
+        monthly_totals = [0.0] * 12
+        current_month_count = 0
         for e in expenses:
             category_totals[e.category] = category_totals.get(e.category, 0.0) + e.amount
+            if e.spent_on:
+                month_index = e.spent_on.month - 1
+                if e.spent_on.year == report_year:
+                    monthly_totals[month_index] += e.amount
+                if e.spent_on.year == report_year and month_index == today.month - 1:
+                    current_month_count += 1
 
         category_percentages = {}
         for cat, total in category_totals.items():
@@ -48,9 +59,22 @@ def create_app(test_config=None) -> Flask:
             "index.html",
             expenses=expenses,
             total_amount=total_amount,
+            report_year=report_year,
+            current_month_total=round(monthly_totals[today.month - 1], 2),
+            current_month_count=current_month_count,
             categories=CATEGORIES,
             category_totals=category_totals,
             category_percentages=category_percentages,
+            chart_data={
+                "monthly_labels": [
+                    calendar.month_name[month] for month in range(1, 13)
+                ],
+                "monthly_totals": [round(amount, 2) for amount in monthly_totals],
+                "categories": CATEGORIES,
+                "category_totals": [
+                    round(category_totals[category], 2) for category in CATEGORIES
+                ],
+            },
         )
 
     @app.route("/expense/<int:expense_id>", methods=["GET"])
@@ -161,10 +185,13 @@ def create_app(test_config=None) -> Flask:
             title = request.form.get("title", "").strip()
             amount_raw = request.form.get("amount", "").strip()
             description = request.form.get("description", "").strip()
+            category = request.form.get("category", expense.category).strip()
 
             if not title:
                 flash("Title cannot be empty.", "danger")
-                return render_template("edit.html", expense=expense), 400
+                return render_template(
+                    "edit.html", expense=expense, categories=CATEGORIES
+                ), 400
 
             try:
                 amount = float(amount_raw)
@@ -172,18 +199,27 @@ def create_app(test_config=None) -> Flask:
                     raise ValueError()
             except (ValueError, TypeError):
                 flash("Amount must be a positive number greater than 0.", "danger")
-                return render_template("edit.html", expense=expense), 400
+                return render_template(
+                    "edit.html", expense=expense, categories=CATEGORIES
+                ), 400
+
+            if category not in CATEGORIES:
+                flash("Please select a valid category.", "danger")
+                return render_template(
+                    "edit.html", expense=expense, categories=CATEGORIES
+                ), 400
 
             expense.title = title
             expense.amount = round(amount, 2)
             expense.description = description if description else None
+            expense.category = category
             expense.updated_at = datetime.now(timezone.utc)
 
             db.session.commit()
             flash(f"Expense '{expense.title}' updated successfully!", "success")
             return redirect(url_for("index"))
 
-        return render_template("edit.html", expense=expense)
+        return render_template("edit.html", expense=expense, categories=CATEGORIES)
 
     @app.route("/delete/<int:expense_id>", methods=["GET", "POST"])
     @app.route("/delete", methods=["GET", "POST"])

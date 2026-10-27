@@ -64,6 +64,32 @@
             </div>
             <span class="text-xs font-semibold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full">Expenses</span>
         </div>
+
+        <div class="bg-white rounded-3xl p-5 border border-slate-100 shadow-card flex items-center justify-between">
+            <div class="flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center text-xl shrink-0">
+                    📅
+                </div>
+                <div>
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">This Month</span>
+                    <span class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5 block">${{ "{:,.2f}".format(current_month_total) }}</span>
+                </div>
+            </div>
+            <span class="text-xs font-semibold text-violet-600 bg-violet-50 px-2.5 py-1 rounded-full">Spent</span>
+        </div>
+
+        <div class="bg-white rounded-3xl p-5 border border-slate-100 shadow-card flex items-center justify-between">
+            <div class="flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shrink-0">
+                    📊
+                </div>
+                <div>
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">This Month</span>
+                    <span class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5 block">{{ current_month_count }} Transactions</span>
+                </div>
+            </div>
+            <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">Count</span>
+        </div>
     </div>
 
     <!-- Insight Banner (Matches "Your insight is ready" card in Screenshot) -->
@@ -80,6 +106,16 @@
         <a href="#reports" class="text-xs font-bold text-purple-300 hover:text-white bg-white/10 hover:bg-white/15 px-3.5 py-1.5 rounded-xl transition-colors whitespace-nowrap">
             View Analytics &darr;
         </a>
+    </div>
+
+    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-card">
+        <div class="pb-5">
+            <h2 class="text-lg font-bold text-slate-900 tracking-tight">Monthly Spending</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Expense totals by month in {{ report_year }}</p>
+        </div>
+        <div class="monthly-chart-container">
+            <canvas id="monthlySpendingChart" role="img" aria-label="Monthly spending bar chart"></canvas>
+        </div>
     </div>
 
     <!-- Category Expenses Report (Matches Center Screen in Screenshot) -->
@@ -101,30 +137,7 @@
             <!-- Doughnut Visualization -->
             <div class="md:col-span-5 flex flex-col items-center justify-center">
                 <div class="relative w-48 h-48 sm:w-56 sm:h-56 flex items-center justify-center">
-                    <!-- Modern SVG Donut Chart -->
-                    <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                        <!-- Background Circle -->
-                        <circle cx="50" cy="50" r="38" fill="transparent" stroke="#F1F5F9" stroke-width="14"></circle>
-                        
-                        {% set ns = namespace(offset=0) %}
-                        {% for cat in categories %}
-                            {% set pct = category_percentages[cat] %}
-                            {% if pct > 0 %}
-                                <circle 
-                                    cx="50" cy="50" r="38" 
-                                    fill="transparent"
-                                    stroke="{% if cat == 'Food' %}#F59E0B{% elif cat == 'Travel' %}#3B82F6{% elif cat == 'Utilities' %}#10B981{% else %}#8B5CF6{% endif %}"
-                                    stroke-width="14"
-                                    stroke-dasharray="{{ (pct * 2.387)|round(1) }} 238.7"
-                                    stroke-dashoffset="-{{ (ns.offset * 2.387)|round(1) }}"
-                                    stroke-linecap="round"
-                                    class="transition-all duration-500 hover:opacity-80"
-                                ></circle>
-                                {% set ns.offset = ns.offset + pct %}
-                            {% endif %}
-                        {% endfor %}
-                    </svg>
-
+                    <canvas id="categorySpendingChart" role="img" aria-label="Spending by category doughnut chart"></canvas>
                     <!-- Center Label in Donut -->
                     <div class="absolute inset-0 flex flex-col items-center justify-center text-center p-2">
                         <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total</span>
@@ -201,7 +214,7 @@
             <!-- Modern Transaction Rows matching Screenshot -->
             <div class="divide-y divide-slate-100 mt-2">
                 {% for exp in expenses %}
-                    <div class="py-4 sm:py-5 flex items-center justify-between gap-4 hover:bg-slate-50/60 rounded-2xl px-2 sm:px-3 -mx-2 sm:-mx-3 transition-colors group">
+                    <div class="transaction-row py-4 sm:py-5 flex items-center justify-between gap-4 hover:bg-slate-50/60 rounded-2xl px-2 sm:px-3 -mx-2 sm:-mx-3 transition-colors group">
                         <!-- Left: Category Icon + Title & Description -->
                         <div class="flex items-center gap-3.5 min-w-0">
                             <!-- Icon inside rounded square (matches screenshot) -->
@@ -233,7 +246,7 @@
                         </div>
 
                         <!-- Right: Amount & Actions (Edit / Delete) -->
-                        <div class="flex items-center gap-3 sm:gap-4 shrink-0">
+                        <div class="transaction-actions flex items-center gap-3 sm:gap-4 shrink-0">
                             <div class="text-right">
                                 <!-- Red Amount like "-354.25$" in screenshot -->
                                 <span class="font-extrabold text-rose-500 text-sm sm:text-base tracking-tight block">
@@ -245,7 +258,7 @@
                             <!-- Action Buttons -->
                             <div class="flex items-center gap-1.5">
                                 <!-- View Details Link -->
-                                <a href="{{ url_for('view_expense', expense_id=exp.id) }}" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors" title="View Details">
+                                <a href="{{ url_for('view_expense', expense_id=exp.id) }}" class="icon-button bg-slate-100 hover:bg-slate-200 text-slate-600" title="View Details" aria-label="View {{ exp.title }}">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
@@ -253,7 +266,7 @@
                                 </a>
 
                                 <!-- Edit Button -->
-                                <a href="{{ url_for('edit_expense', expense_id=exp.id) }}" class="w-8 h-8 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 flex items-center justify-center transition-colors" title="Edit Expense">
+                                <a href="{{ url_for('edit_expense', expense_id=exp.id) }}" class="icon-button bg-purple-50 hover:bg-purple-100 text-purple-700" title="Edit Expense" aria-label="Edit {{ exp.title }}">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
                                     </svg>
@@ -261,7 +274,7 @@
 
                                 <!-- Delete Button -->
                                 <form action="{{ url_for('delete_expense', expense_id=exp.id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this expense?');">
-                                    <button type="submit" class="w-8 h-8 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center transition-colors cursor-pointer" title="Delete Expense">
+                                    <button type="submit" class="icon-button bg-rose-50 hover:bg-rose-100 text-rose-600" title="Delete Expense" aria-label="Delete {{ exp.title }}">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                         </svg>
@@ -290,4 +303,82 @@
     </div>
 
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script id="dashboard-chart-data" type="application/json">{{ chart_data|tojson }}</script>
+<script>
+    const chartData = JSON.parse(document.getElementById("dashboard-chart-data").textContent);
+    const categoryColors = ["#F59E0B", "#3B82F6", "#10B981", "#8B5CF6"];
+
+    new Chart(document.getElementById("monthlySpendingChart"), {
+        type: "bar",
+        data: {
+            labels: chartData.monthly_labels,
+            datasets: [{
+                label: "Spending",
+                data: chartData.monthly_totals,
+                backgroundColor: "#8B5CF6",
+                borderRadius: 8,
+                maxBarThickness: 36
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: context => `$${context.parsed.y.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        })}`
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: value => `$${Number(value).toLocaleString()}`
+                    },
+                    grid: { color: "#F1F5F9" }
+                },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    new Chart(document.getElementById("categorySpendingChart"), {
+        type: "doughnut",
+        data: {
+            labels: chartData.categories,
+            datasets: [{
+                data: chartData.category_totals,
+                backgroundColor: categoryColors,
+                borderColor: "#FFFFFF",
+                borderWidth: 3,
+                hoverOffset: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            cutout: "72%",
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: context => `${context.label}: $${context.parsed.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        })}`
+                    }
+                }
+            }
+        }
+    });
+</script>
 {% endblock %}
